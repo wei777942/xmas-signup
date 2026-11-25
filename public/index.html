@@ -65,6 +65,21 @@ button.go:disabled{opacity:.6}
 .again{background:none;border:2px solid var(--green);color:var(--green);padding:10px 16px;border-radius:12px;font-size:15px;margin-top:12px;cursor:pointer}
 footer{text-align:center;color:#f3d38a;font-size:13px;margin-top:22px;opacity:.85}
 .holly{position:absolute;top:-14px;left:-10px;font-size:26px;transform:rotate(-20deg)}
+.mine h3{color:var(--green);font-size:22px;margin:4px 0 10px;text-align:center}
+.now{font-size:17px;text-align:center;margin:6px 0}
+.now b{color:var(--deep);font-size:20px}
+.codebox{margin:12px auto;text-align:center;background:#fff;border:2px dashed var(--gold);border-radius:14px;padding:10px 12px;max-width:300px}
+.codebox .c{font-size:36px;font-weight:800;letter-spacing:.35em;color:var(--red);font-family:ui-monospace,Menlo,monospace;padding-left:.35em}
+.codebox .hint{margin-top:2px}
+.row{display:flex;gap:10px;margin-top:14px}
+.row button{flex:1;font-size:16px;font-weight:700;padding:12px;border-radius:12px;cursor:pointer}
+.b-green{background:var(--green);color:#fff;border:0}
+.b-ghost{background:#fff;color:var(--red);border:2px solid var(--red)}
+.linkbtn{display:block;margin:14px auto 0;background:none;border:0;color:#8a6d50;text-decoration:underline;font-size:14px;cursor:pointer}
+.sub-h{font-weight:700;color:var(--deep);margin:16px 0 8px}
+.ok{display:block;background:#e3f6e8;color:var(--green)}
+.editlink{display:block;text-align:center;color:#ffe9a8;margin-top:14px;font-size:15px;text-decoration:underline;cursor:pointer;background:none;border:0;width:100%}
+[hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -81,76 +96,163 @@ footer{text-align:center;color:#f3d38a;font-size:13px;margin-top:22px;opacity:.8
   </div>
   <div class="lights"></div>
 
+  <!-- 我的報名（同一支手機記得；或用姓名＋修改碼叫出） -->
+  <div class="card mine" id="mine" hidden>
+    <span class="holly">🎀</span>
+    <h3 id="mineTitle">🎅 報名成功！</h3>
+    <p class="now">你已報名：<b id="mineItem"></b></p>
+    <p class="now" id="mineName" style="font-size:15px;color:#6b4f36"></p>
+    <div class="codebox"><div class="hint">你的修改碼</div><div class="c" id="mineCode"></div>
+      <div class="hint">請截圖或記下來，換手機要改報名時會用到</div></div>
+    <div class="row" id="mineBtns">
+      <button class="b-green" id="btnChange" type="button">改報其他課程</button>
+      <button class="b-ghost" id="btnCancel" type="button">取消報名</button>
+    </div>
+    <div id="changeBox" hidden>
+      <div class="sub-h">改報哪一個課程？</div>
+      <div class="items" id="otherItems"></div>
+      <div class="row">
+        <button class="b-green" id="btnDoChange" type="button">確定改報</button>
+        <button class="b-ghost" id="btnNoChange" type="button">先不要</button>
+      </div>
+    </div>
+    <div class="msg" id="mineMsg"></div>
+    <p class="now" style="font-size:15px;margin-top:14px">12/24（四）14:30 見，聖誕快樂！</p>
+    <button class="linkbtn" id="btnOther" type="button">幫其他同事報名</button>
+  </div>
+
   <form class="card" id="form" autocomplete="on">
     <span class="holly">🎀</span>
     <h2>✨ 選擇手作項目</h2>
-    <div class="hint" style="margin:-6px 0 12px">12/24（四）14:30–15:30・每組限 12 人・選一項即可</div>
+    <div class="hint" style="margin:-6px 0 12px">12/24（四）14:30–15:30・每組限 12 人・每人限報一項</div>
     <div class="items" id="items"><div class="hint">名額載入中…</div></div>
 
     <label class="f" for="name">姓名（請填真實姓名）</label>
     <input class="t" id="name" name="name" required minlength="2" maxlength="30" placeholder="例如：王小明" autocomplete="name">
 
-    <label class="f" for="phone">手機號碼</label>
-    <input class="t" id="phone" name="phone" required inputmode="tel" maxlength="15" placeholder="例如：0912345678" autocomplete="tel">
-    <div class="hint">只用來辨認同名的人，不會公開。</div>
-
     <button class="go" id="go" type="submit">🎁 送出報名</button>
     <div class="msg" id="msg"></div>
   </form>
 
-  <div class="card done" id="done" style="display:none">
-    <div class="big">🎅</div>
-    <h3>報名成功！</h3>
-    <p id="doneText"></p>
-    <p>12/24（四）14:30 見，聖誕快樂！</p>
-    <button class="again" id="again" type="button">幫其他人報名</button>
-  </div>
+  <button class="editlink" id="openEdit" type="button">已經報名了？修改或取消報名 ↓</button>
+  <form class="card" id="edit" hidden>
+    <h2>✏️ 修改報名</h2>
+    <div class="hint" style="margin:-6px 0 4px">輸入報名時的姓名和 4 位數修改碼。忘記修改碼請找主辦人。</div>
+    <label class="f" for="eName">姓名</label>
+    <input class="t" id="eName" required maxlength="30" placeholder="報名時填的姓名" autocomplete="name">
+    <label class="f" for="eCode">修改碼</label>
+    <input class="t" id="eCode" required inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="4 位數字" autocomplete="off">
+    <button class="go" id="eGo" type="submit">查詢我的報名</button>
+    <div class="msg" id="eMsg"></div>
+  </form>
 
   <footer>Merry Christmas ✦ 名額即時更新</footer>
 </div>
 <script>
 const $ = id => document.getElementById(id);
-let items = [];
-function render(){
-  const sel = (document.querySelector('input[name=item]:checked')||{}).value;
-  $('items').innerHTML = items.map(it => `
-    <label class="item ${it.full?'full':''}">
+const KEY = 'xs_me';
+let items = [], me = null;
+
+function itemHTML(it, radio, sel){
+  return `<label class="item ${it.full?'full':''}">
       <span class="tag">額滿</span>
-      <input type="radio" name="item" value="${it.id}" ${it.full?'disabled':''} ${sel===it.id&&!it.full?'checked':''}>
+      <input type="radio" name="${radio}" value="${it.id}" ${it.full?'disabled':''} ${sel===it.id&&!it.full?'checked':''}>
       <span class="emo">${it.emoji}</span>
       <span class="grow"><div class="nm">${it.name}</div>
         <div class="left">${it.full?'額滿，無法報名':'剩 '+it.left+' 位（共 '+(it.taken+it.left)+' 位）'}</div>
         <div class="bar"><i style="width:${Math.min(100,it.taken/(it.taken+it.left)*100)}%"></i></div></span>
       <span class="chk"></span>
-    </label>`).join('');
+    </label>`;
+}
+const checked = n => (document.querySelector(`input[name=${n}]:checked`)||{}).value;
+function render(){
+  const a = checked('item'), b = checked('to');
+  $('items').innerHTML = items.map(it => itemHTML(it,'item',a)).join('');
+  if(me) $('otherItems').innerHTML = items.filter(it => it.id !== me.itemId).map(it => itemHTML(it,'to',b)).join('');
 }
 async function load(){
-  try{
-    const r = await fetch('/api/status',{cache:'no-store'}); const d = await r.json();
-    items = d.items; render();
-  }catch(e){ if(!items.length) $('items').innerHTML='<div class="hint">名額載入失敗，請重新整理頁面。</div>'; }
+  try{ const d = await (await fetch('/api/status',{cache:'no-store'})).json(); items = d.items; render(); }
+  catch(e){ if(!items.length) $('items').innerHTML='<div class="hint">名額載入失敗，請重新整理頁面。</div>'; }
 }
-load(); setInterval(()=>{ if(!document.hidden) load(); }, 8000);
-document.addEventListener('visibilitychange',()=>{ if(!document.hidden) load(); });
+async function api(url, body){
+  const r = await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  let d = {}; try{ d = await r.json(); }catch(e){}
+  if(!r.ok){ const e = new Error(d.error||'系統忙碌，請稍後再試'); e.status = r.status; throw e; }
+  return d;
+}
+function say(el, text, ok){ el.textContent = text; el.className = 'msg ' + (ok?'ok':'err'); }
+function clearMsg(el){ el.className = 'msg'; }
+
+function showMine(d, title){
+  me = d; localStorage.setItem(KEY, JSON.stringify({name:d.name, code:d.code}));
+  $('mineTitle').textContent = title || '🎄 我的報名';
+  $('mineItem').textContent = d.item;
+  $('mineName').textContent = d.name;
+  $('mineCode').textContent = d.code;
+  $('changeBox').hidden = true; $('mineBtns').hidden = false; clearMsg($('mineMsg'));
+  $('mine').hidden = false; $('form').hidden = true; $('edit').hidden = true; $('openEdit').hidden = true;
+  render();
+}
+function showForm(){
+  $('mine').hidden = true; $('form').hidden = false; $('openEdit').hidden = false; me = null; render();
+}
 
 $('form').addEventListener('submit', async e => {
-  e.preventDefault();
-  const msg = $('msg'); msg.className='msg';
-  const item = (document.querySelector('input[name=item]:checked')||{}).value;
-  if(!item){ msg.textContent='請先選擇一個項目'; msg.className='msg err'; return; }
-  $('go').disabled = true; $('go').textContent='送出中…';
+  e.preventDefault(); clearMsg($('msg'));
+  const item = checked('item');
+  if(!item) return say($('msg'),'請先選擇一個項目');
+  $('go').disabled = true; $('go').textContent = '送出中…';
   try{
-    const r = await fetch('/api/signup',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({item,name:$('name').value,phone:$('phone').value})});
-    const d = await r.json();
-    if(!r.ok) throw new Error(d.error||'報名失敗，請再試一次');
-    $('doneText').textContent = `${d.name}，你已報名「${d.item}」`;
-    $('form').style.display='none'; $('done').style.display='block';
-    window.scrollTo({top:$('done').offsetTop-20,behavior:'smooth'});
-  }catch(err){ msg.textContent = err.message; msg.className='msg err'; }
-  finally{ $('go').disabled=false; $('go').textContent='🎁 送出報名'; load(); }
+    const d = await api('/api/signup',{item, name:$('name').value});
+    $('form').reset(); showMine(d,'🎅 報名成功！');
+    window.scrollTo({top:$('mine').offsetTop-20,behavior:'smooth'});
+  }catch(err){ say($('msg'), err.message); }
+  finally{ $('go').disabled = false; $('go').textContent = '🎁 送出報名'; load(); }
 });
-$('again').onclick = () => { $('form').reset(); $('done').style.display='none'; $('form').style.display='block'; load(); };
+
+$('btnChange').onclick = () => { $('changeBox').hidden = false; $('mineBtns').hidden = true; clearMsg($('mineMsg')); load(); };
+$('btnNoChange').onclick = () => { $('changeBox').hidden = true; $('mineBtns').hidden = false; };
+$('btnDoChange').onclick = async () => {
+  const to = checked('to'); if(!to) return say($('mineMsg'),'請選擇要改報的課程');
+  try{
+    const d = await api('/api/change',{name:me.name, code:me.code, item:to});
+    showMine(d,'✅ 已改報成功'); say($('mineMsg'),'已改為「'+d.item+'」',true);
+  }catch(err){ say($('mineMsg'), err.message); if(err.status===404) forget(); }
+  load();
+};
+$('btnCancel').onclick = async () => {
+  if(!confirm('確定要取消「'+me.item+'」的報名嗎？名額會釋出給其他人。')) return;
+  try{
+    await api('/api/cancel',{name:me.name, code:me.code});
+    localStorage.removeItem(KEY); showForm(); say($('msg'),'已取消報名。想再參加可以重新報名。',true);
+  }catch(err){ say($('mineMsg'), err.message); if(err.status===404) forget(); }
+  load();
+};
+function forget(){ localStorage.removeItem(KEY); setTimeout(showForm, 1800); }
+$('btnOther').onclick = () => { localStorage.removeItem(KEY); showForm(); $('name').focus(); };
+
+$('openEdit').onclick = () => { $('edit').hidden = false; $('openEdit').hidden = true; $('eName').focus(); };
+$('edit').addEventListener('submit', async e => {
+  e.preventDefault(); clearMsg($('eMsg'));
+  try{
+    const d = await api('/api/lookup',{name:$('eName').value, code:$('eCode').value});
+    $('edit').reset(); showMine(d,'🎄 我的報名');
+    window.scrollTo({top:$('mine').offsetTop-20,behavior:'smooth'});
+  }catch(err){ say($('eMsg'), err.message); }
+});
+
+(async () => {
+  await load();
+  try{
+    const saved = JSON.parse(localStorage.getItem(KEY)||'null');
+    if(saved && saved.name && saved.code){
+      try{ showMine(await api('/api/lookup',saved),'🎄 我的報名'); }
+      catch(err){ if(err.status===404) localStorage.removeItem(KEY); }
+    }
+  }catch(e){}
+})();
+setInterval(()=>{ if(!document.hidden) load(); }, 8000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) load(); });
 
 // subtle snow
 (() => {

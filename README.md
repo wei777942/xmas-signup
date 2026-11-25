@@ -1,5 +1,5 @@
 # 聖誕手作課程報名
 
-Node + Express + Postgres. Env: DATABASE_URL, ADMIN_KEY, CAP (default 12).
-Cover: put `public/cover.jpg` and push; page shows it automatically.
-Admin: /admin?key=ADMIN_KEY
+Node + Express + Postgres. Env: DATABASE_URL, ADMIN_PASSWORD (admin login), ADMIN_KEY (fallback /admin?key=… only when ADMIN_PASSWORD is unset), CAP (default 12).
+Cover: replace `public/cover.jpg` and push.
+Admin: /admin
