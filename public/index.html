@@ -17,7 +17,8 @@ body{font-family:system-ui,-apple-system,"PingFang TC","Noto Sans TC","Microsoft
 #snow{position:fixed;inset:0;pointer-events:none;z-index:0}
 .wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:0 14px 40px}
 .cover{margin:0 -14px;position:relative}
-.cover img{display:block;width:100%;height:auto}
+.cover img{display:block;width:100%;height:auto;max-width:520px;margin:0 auto}
+.hero[hidden]{display:none}
 .hero{padding:42px 20px 30px;text-align:center;color:#fff;position:relative}
 .hero .tree{font-size:56px;line-height:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35))}
 .hero h1{margin:10px 0 6px;font-size:34px;letter-spacing:.08em;color:#ffe9a8;text-shadow:0 2px 0 #7a4b00,0 6px 18px rgba(0,0,0,.4)}
@@ -70,7 +71,9 @@ footer{text-align:center;color:#f3d38a;font-size:13px;margin-top:22px;opacity:.8
 <canvas id="snow"></canvas>
 <div class="wrap">
   <div class="cover" id="cover">
-    <div class="hero" id="hero">
+    <img id="coverImg" src="/cover.jpg" width="1080" height="1350" alt="聖誕手作課程｜12/24（四）14:30–15:30｜每組限 12 人"
+      onerror="this.remove();document.getElementById('hero').hidden=false">
+    <div class="hero" id="hero" hidden>
       <div class="tree">🎄</div>
       <h1>聖誕手作課程</h1>
       <div class="sub">CHRISTMAS ・ HANDMADE</div>
@@ -78,19 +81,10 @@ footer{text-align:center;color:#f3d38a;font-size:13px;margin-top:22px;opacity:.8
   </div>
   <div class="lights"></div>
 
-  <div class="card">
-    <span class="holly">🎀</span>
-    <h2>📅 活動資訊</h2>
-    <div class="info">
-      <b>日期</b><span>12 月 24 日（四）</span>
-      <b>時間</b><span>14:30 – 15:30</span>
-      <b>名額</b><span>每組限 12 人，額滿為止</span>
-      <b>方式</b><span>選一個項目，填姓名與手機即可</span>
-    </div>
-  </div>
-
   <form class="card" id="form" autocomplete="on">
+    <span class="holly">🎀</span>
     <h2>✨ 選擇手作項目</h2>
+    <div class="hint" style="margin:-6px 0 12px">12/24（四）14:30–15:30・每組限 12 人・選一項即可</div>
     <div class="items" id="items"><div class="hint">名額載入中…</div></div>
 
     <label class="f" for="name">姓名（請填真實姓名）</label>
@@ -134,10 +128,6 @@ async function load(){
   try{
     const r = await fetch('/api/status',{cache:'no-store'}); const d = await r.json();
     items = d.items; render();
-    if(d.hasCover && !$('cover').dataset.img){
-      $('cover').dataset.img = 1;
-      $('cover').innerHTML = '<img src="/cover.jpg?v='+Date.now().toString().slice(0,-6)+'" alt="聖誕手作課程">';
-    }
   }catch(e){ if(!items.length) $('items').innerHTML='<div class="hint">名額載入失敗，請重新整理頁面。</div>'; }
 }
 load(); setInterval(()=>{ if(!document.hidden) load(); }, 8000);
