@@ -88,6 +88,8 @@ function noteFail(ip) {
   if (!f || now - f.t > 15 * 60e3) fails.set(ip, { n: 1, t: now }); else f.n++;
 }
 
+const loginFails = k => { const f = fails.get(k); return f && Date.now() - f.t <= 15 * 60e3 ? f.n : 0; };
+
 const app = express();
 app.set('trust proxy', 1);
 app.use(express.json({ limit: '10kb' }));
@@ -217,7 +219,9 @@ app.get('/admin', wrap(async (req, res) => {
 app.post('/admin/login', (req, res) => {
   adminHeaders(res);
   if (!ADMIN_PASSWORD) return res.status(404).send('Not found');
-  if (!safeEq(req.body.password || '', ADMIN_PASSWORD)) return setTimeout(() => res.redirect(303, '/admin?e=1'), 800);
+  const lk = 'login:' + req.ip;
+  if (loginFails(lk) >= 10) return res.status(429).send(page('報名後台登入', '<p class="login">嘗試太多次，請 15 分鐘後再試。</p>'));
+  if (!safeEq(req.body.password || '', ADMIN_PASSWORD)) { noteFail(lk); return setTimeout(() => res.redirect(303, '/admin?e=1'), 800); }
   const exp = Date.now() + 14 * 24 * 3600e3;
   res.set('Set-Cookie', `${COOKIE}=${exp}.${sign(exp)}; Path=/admin; HttpOnly; Secure; SameSite=Lax; Max-Age=${14 * 24 * 3600}`);
   res.redirect(303, '/admin');
