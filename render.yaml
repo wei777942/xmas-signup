@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: xmas-signup
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: xmas-signup-db
+          property: connectionString
+      - key: ADMIN_KEY
+        sync: false
+      - key: CAP
+        value: "12"
+
+databases:
+  - name: xmas-signup-db
+    plan: free
+    region: singapore
+    postgresMajorVersion: "17"
+    databaseName: xmas_signup_db
+    user: xmas_signup_db_user
